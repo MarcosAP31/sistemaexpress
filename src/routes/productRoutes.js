@@ -4,7 +4,6 @@ const methodOverride = require('method-override');  // Importa method-override
 const productController = require('../controllers/productController');
 const path = require('path');
 // ...
-const oldImagePath = path.join(__dirname, '..', oldImage);
 module.exports = function (upload) {
     // Incluye el middleware method-override en las rutas
     router.use(methodOverride('_method'));

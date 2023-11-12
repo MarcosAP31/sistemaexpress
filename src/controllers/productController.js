@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const fs = require('fs');
+const path = require('path');
 //const multer = require('multer');
 //const upload = multer({ storage: multer.memoryStorage() }); // Almacena la imagen en memoria
 const createProduct = async (req, res) => {
@@ -12,8 +13,8 @@ const createProduct = async (req, res) => {
       SalePrice: req.body.SalePrice,
       Image: req.file ? 'uploads/images/' + req.file.filename : null,
     });
-
-    res.json(newProduct);
+    res.redirect('/products');
+    //res.json(newProduct);
   } catch (error) {
     console.error('Error al crear el producto:', error);
     res.status(500).send('Error interno del servidor');
@@ -90,11 +91,15 @@ const updateProduct = async (req, res) => {
           Image: newImage,
         });
 
-        // Verificar la existencia de la imagen anterior
-        if (req.file && oldImage && fs.existsSync(oldImage)) {
-          // Eliminar la imagen anterior
-          fs.unlinkSync(oldImage);
-          console.log('Imagen anterior eliminada:', oldImage);
+        // Verificar la existencia de la imagen anterior y eliminarla
+        if (req.file && oldImage) {
+          const oldImagePath = path.join(__dirname, '../', oldImage);  // Ruta relativa a la carpeta principal
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+            console.log('Imagen anterior eliminada:', oldImagePath);
+          } else {
+            console.log('La imagen anterior no existe:', oldImagePath);
+          }
         }
       }
       // Después de la actualización, redirige a la página de lista de productos
@@ -114,9 +119,16 @@ const deleteProduct = async (req, res) => {
 
   try {
     const product = await Product.findByPk(productId);
-
+    const oldImage = product.Image;
     if (product) {
       await product.destroy();
+      const oldImagePath = path.join(__dirname, '../', oldImage);  // Ruta relativa a la carpeta principal
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+        console.log('Imagen anterior eliminada:', oldImagePath);
+      } else {
+        console.log('La imagen anterior no existe:', oldImagePath);
+      }
       res.json({ message: 'Producto eliminado exitosamente' });
     } else {
       res.status(404).json({ message: 'Producto no encontrado' });

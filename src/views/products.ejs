@@ -63,8 +63,9 @@
 
               <div class="form-group">
                 <label for="Image">Imagen:</label>
-                <input type="file" class="form-control-file" id="Image" name="Image" accept="image/*" onchange="previewImage()">
-                <img id="currentImage" src="" alt="Product Image" style="width: 100px;">
+                <input type="file" class="form-control-file" id="Image" name="Image" accept="image/*"
+                  onchange="previewImage()">
+                <img id="currentImage" src="" alt="Product Image" style="width: 100px;display:none">
               </div>
 
               <!-- Otros campos... -->
@@ -189,8 +190,10 @@
     });
     function editProduct(productId, productDescription, productCategory, productAmount, productPurchasePrice, productSalePrice, productImage) {
       // Obtener el modal de creación por ID
+      const imagePreview = document.getElementById('currentImage');
+      imagePreview.style.display = 'block'; // Muestra la vista previa
       const modal = $('#createProductModal');
-
+      
       // Llenar los campos del formulario con los datos del producto
       modal.find('#Description').val(productDescription);
       modal.find('#Category').val(productCategory);
@@ -223,6 +226,8 @@
       modal.find('#createProductForm').trigger('reset');
       modal.find('#formMethod').val('POST');
       modal.find('.modal-footer button[type="submit"]').text('Guardar');
+      const imagePreview = document.getElementById('currentImage');
+      imagePreview.style.display = 'none'; // Muestra la vista previa
     });
 
     function previewImage() {
@@ -235,9 +240,14 @@
         reader.onload = function (e) {
           // Muestra la vista previa de la imagen en el elemento img
           imagePreview.src = e.target.result;
+          imagePreview.style.display = 'block'; // Muestra la vista previa
         };
 
         reader.readAsDataURL(input.files[0]);
+      } else {
+        // Oculta la vista previa si no se selecciona ningún archivo
+        imagePreview.src = '';
+        imagePreview.style.display = 'none';
       }
     }
 

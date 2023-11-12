@@ -27,6 +27,7 @@ const upload = multer({ storage: storage });
 app.use(express.json());
 // Sirve los archivos estáticos desde la carpeta de imágenes
 // Sirve los archivos estáticos desde la carpeta de imágenes
+// Sirve los archivos estáticos desde la carpeta de imágenes
 app.use('/uploads/images', express.static(path.join(__dirname, './src/uploads/images')));
 app.use('/products', productRoutes(upload));
 app.set('view engine', 'ejs'); // Set EJS as the view engine
