@@ -1,0 +1,247 @@
+<!-- views/products.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <title>Listado de Productos</title>
+</head>
+
+<body>
+
+  <div class="container mt-5">
+    <h2>Listado de Productos</h2>
+    <!-- Botón para abrir el modal de creación -->
+    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createProductModal">Agregar
+      Producto</button>
+
+    <!-- Modal de creación -->
+    <div class="modal fade" id="createProductModal" tabindex="-1" role="dialog"
+      aria-labelledby="createProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="createProductModalLabel">Agregar Nuevo Producto</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <!-- Aquí debes agregar el formulario para crear un nuevo producto -->
+            <!-- Puedes utilizar un formulario HTML estándar -->
+            <form action="/products" method="post" enctype="multipart/form-data" id="createProductForm">
+              <!-- Campos del formulario -->
+              <!-- Campo oculto para indicar el método (POST para creación, PUT para actualización) -->
+              <input type="hidden" id="formMethod" name="_method" value="POST">
+
+              <!-- Campo oculto para almacenar el ID del producto (se llenará en la función editProduct) -->
+              <input type="hidden" id="productId" name="productId" value="">
+
+              <div class="form-group">
+                <label for="Description">Descripción:</label>
+                <input type="text" class="form-control" id="Description" name="Description" required>
+              </div>
+              <div class="form-group">
+                <label for="Category">Categoría:</label>
+                <input type="text" class="form-control" id="Category" name="Category" required>
+              </div>
+              <div class="form-group">
+                <label for="Amount">Cantidad:</label>
+                <input type="text" class="form-control" id="Amount" name="Amount" required>
+              </div>
+              <div class="form-group">
+                <label for="PurchasePrice">Precio de compra:</label>
+                <input type="text" class="form-control" id="PurchasePrice" name="PurchasePrice" required>
+              </div>
+              <div class="form-group">
+                <label for="SalePrice">Precio de venta:</label>
+                <input type="text" class="form-control" id="SalePrice" name="SalePrice" required>
+              </div>
+
+              <div class="form-group">
+                <label for="Image">Imagen:</label>
+                <input type="file" class="form-control-file" id="Image" name="Image" accept="image/*" onchange="previewImage()">
+                <img id="currentImage" src="" alt="Product Image" style="width: 100px;">
+              </div>
+
+              <!-- Otros campos... -->
+
+              <!-- Botones del formulario -->
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal de Confirmación de Eliminación -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog"
+      aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de que deseas eliminar este producto?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Tabla Bootstrap -->
+    <table class="table mt-3">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Descripción</th>
+          <th>Categoría</th>
+          <th>Cantidad</th>
+          <th>Precio de Compra</th>
+          <th>Precio de Venta</th>
+          <th>Imagen</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% products.forEach(product=> { %>
+          <tr>
+            <td>
+              <%= product.ProductId %>
+            </td>
+            <td>
+              <%= product.Description %>
+            </td>
+            <td>
+              <%= product.Category %>
+            </td>
+            <td>
+              <%= product.Amount %>
+            </td>
+            <td>
+              <%= product.PurchasePrice %>
+            </td>
+            <td>
+              <%= product.SalePrice %>
+            </td>
+            <td>
+              <img src="<%= product.Image %>" alt="Product Image" style="width: 100px;">
+            </td>
+            <td>
+              <!-- Botón de Modificar -->
+              <button class="btn btn-warning btn-sm"
+                onclick="editProduct('<%= product.ProductId %>', '<%= product.Description %>', '<%= product.Category %>', '<%= product.Amount %>', '<%= product.PurchasePrice %>', '<%= product.SalePrice %>', '<%= product.Image %>')">Modificar</button>
+
+              <!-- Botón de Eliminar -->
+              <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirmDeleteModal"
+                data-id="<%= product.ProductId %>">Eliminar</button>
+            </td>
+          </tr>
+          <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <!-- Tu script personalizado para manejar acciones de eliminar y modificar -->
+  <script>
+    $(document).ready(function () {
+      // Manejar el clic en el botón de eliminación
+      $('.btn-danger').on('click', function () {
+        const productId = $(this).data('id');
+        $('#productIdToDelete').text(productId);
+        $('#confirmDeleteBtn').data('productId', productId);
+      });
+
+      // Manejar el clic en el botón de confirmación de eliminación
+      $('#confirmDeleteBtn').on('click', function () {
+        const productId = $(this).data('productId');
+
+        // Hacer una solicitud AJAX para eliminar el producto
+        $.ajax({
+          url: `/products/${productId}`,
+          method: 'DELETE',
+          success: function (data) {
+            // Manejar la respuesta exitosa (puedes recargar la página o actualizar la tabla de productos)
+            console.log(data.message); // Imprime el mensaje de éxito en la consola (opcional)
+            location.reload(); // Recargar la página para reflejar los cambios
+          },
+          error: function (error) {
+            // Manejar errores en la solicitud AJAX
+            console.error('Error al eliminar el producto:', error);
+            alert('Error al eliminar el producto. Consulta la consola para más detalles.');
+          }
+        });
+      });
+    });
+    function editProduct(productId, productDescription, productCategory, productAmount, productPurchasePrice, productSalePrice, productImage) {
+      // Obtener el modal de creación por ID
+      const modal = $('#createProductModal');
+
+      // Llenar los campos del formulario con los datos del producto
+      modal.find('#Description').val(productDescription);
+      modal.find('#Category').val(productCategory);
+      modal.find('#Amount').val(productAmount);
+      modal.find('#PurchasePrice').val(productPurchasePrice);
+      modal.find('#SalePrice').val(productSalePrice);
+
+      // Configurar la acción del formulario para la actualización (usando el ID del producto)
+      modal.find('#createProductForm').attr('action', `/products/${productId}?_method=PUT`);
+
+      // Configurar el campo oculto del método como PUT
+      modal.find('#formMethod').val('PUT');
+
+      // Configurar el campo oculto del ID del producto
+      modal.find('#productId').val(productId);
+
+      // Mostrar la imagen actual en el formulario
+      modal.find('#currentImage').attr('src', productImage);
+
+      // Cambiar el texto del botón Guardar a Actualizar
+      modal.find('.modal-footer button[type="submit"]').text('Actualizar');
+
+      // Mostrar el modal de creación
+      modal.modal('show');
+    }
+
+    // Este código se encarga de resetear el formulario cuando se cierra el modal
+    $('#createProductModal').on('hidden.bs.modal', function () {
+      const modal = $(this);
+      modal.find('#createProductForm').trigger('reset');
+      modal.find('#formMethod').val('POST');
+      modal.find('.modal-footer button[type="submit"]').text('Guardar');
+    });
+
+    function previewImage() {
+      const input = document.getElementById('Image');
+      const imagePreview = document.getElementById('currentImage');
+
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          // Muestra la vista previa de la imagen en el elemento img
+          imagePreview.src = e.target.result;
+        };
+
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+  </script>
+</body>
+
+</html>
